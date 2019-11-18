@@ -1,4 +1,5 @@
 Passos: 
+
 1º - Instalar:
         - nodejs
         - npm
@@ -10,7 +11,7 @@ Passos:
 3º: Faça uma cópia de .env.example e renomeie o arquivo apenas para .env
 - No arquivo .env em atribua a LUIS_MODEL_URL a sua url de conexão do LUIS.
 
-4º: Entre na pasta (src/parte-4): 
+4º: Entre na pasta (src/Code): 
 - execute: nodemon lanchoneteApp.js
 
 5º - Abra o botFrameworkEmulator:

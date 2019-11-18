@@ -1,5 +1,3 @@
-// Aqui estou carregando os enviroments que estão vindo do
-// arquivo 'env':
 require('dotenv-extended').load({
     path: '../../.env'
 });
@@ -37,8 +35,7 @@ let intents = new builder.IntentDialog({ recognizers: [recognizer] });
 
 //===> Configuração dos 'Intents'(Intenções):
 
-//Endpoint - Saudar:
-intents.matches("Reclamações", [ 
+intents.matches("Reclamações", [
     session => {
         builder.Prompts.text(session, "Ok, qual seria a reclamação?");
     },
@@ -48,12 +45,10 @@ intents.matches("Reclamações", [
     }
 ]);
 
-//Endpoint - Saudar:
 intents.matches("Saudar", (session, results) => {
     session.send("Oi! Tudo bem? Em que posso ajudar?");
 });
 
-//Endpoint - Pedir:
 intents.matches("Pedir", [
     (session, args, next) => {
         var lanches = [
@@ -80,29 +75,29 @@ intents.matches("Pedir", [
             const bestSeller = Object.entries(vendas).reduce((e1, e2) => e1[1] > e2[1] ? e1 : e2);
 
             builder.Prompts.choice(session, "No momento só temos esses lanches disponíveis. Qual que você gostaria de pedir?", lanches, {
-                retryPrompt: 'Escolha uma das opções abaixo. Uma sugestão seria **' + bestSeller[0] + '**' ,
+                retryPrompt: 'Escolha uma das opções abaixo. Uma sugestão seria **' + bestSeller[0] + '**',
                 maxRetries: 5
             });
         } else {
             next({ response: match });
         }
     },
-    
-    (session, results) =>{
+
+    (session, results) => {
         pedido.item = results.response.entity;
         builder.Prompts.text(session, "Qual o endereco de entrega?")
-    }, 
-    
+    },
+
     (session, results) => {
         pedido.endereco = results.response;
-        //Aqui é para indicar em quanto tempo o pedido do lanche deverá ser entregue: em 30 minutos:
-        
+        //Indica em quanto tempo o pedido do lanche deverá ser entregue (30 minutos):
+
         if (results.response) {
             var time = moment().add(30, "m");
-            
+
             session.dialogData.time = time.format("HH:mm");
             session.send("Pronto! Seu lanche **%s** chegará às **%s**.", pedido.item, session.dialogData.time);
-            session.send('O endereço de entrega é: ' + pedido.endereco)
+            session.send('O endereço de entrega é: **%s**.', pedido.endereco)
             session.send('**Obrigado pela preferência!!!**')
 
             vendas[pedido.item]++;
@@ -112,19 +107,32 @@ intents.matches("Pedir", [
     }
 ]);
 
-//Endpoint - Cancelar:
 intents.matches("Cancelar", (session, results) => {
     session.send("Pedido cancelado com sucesso! Muito Obrigado! Até a próxima!");
 });
 
-//Endpoint - Verificar:
 intents.matches("Verificar", (session, results) => {
     session.send("Seu lanche chegará às **%s**", session.dialogData.time);
 });
 
-//Endpoint - Finalizar:
 intents.matches("Finalizar", (session, results) => {
-    session.send("Muito obrigado, até a próxima", session.dialogData.time);
+    session.send("Muito obrigado, até a próxima");
+});
+
+intents.matches("Funcionamento", (session, results) => {
+    session.send("Nós funcionamos de 9h às 23h durante todos os dias da semana");
+});
+
+intents.matches("Pagamento", (session) => {
+    session.send("Aceitamos cartões de crédito e débito (todas as bandeiras)");
+});
+
+intents.matches("Entrega", (session) => {
+    session.send("Entregamos em toda a cidade de Campina Grande, durante o horário de funcionamento");
+});
+
+intents.matches("Desconto", (session) => {
+    session.send("Desconto de 10% apenas para aniversariantes com documentação presente");
 });
 
 //Endpoint - Default:
