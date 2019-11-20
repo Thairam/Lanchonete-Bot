@@ -21,7 +21,6 @@ var vendas = {
     "Sobremesa": 0
 };
 
-//===> Configuração do Bot:
 let connector = new builder.ChatConnector({
     appId: "",
     appPassword: ""
@@ -29,11 +28,8 @@ let connector = new builder.ChatConnector({
 
 let bot = new builder.UniversalBot(connector);
 
-//===> Configuração LUIS:
 let recognizer = new builder.LuisRecognizer(process.env.LUIS_MODEL_URL);
 let intents = new builder.IntentDialog({ recognizers: [recognizer] });
-
-//===> Configuração dos 'Intents'(Intenções):
 
 intents.matches("Reclamações", [
     session => {
@@ -64,13 +60,10 @@ intents.matches("Pedir", [
 
         let entityLanche = builder.EntityRecognizer.findEntity(args.entities, "Lanche");
 
-        //Aqui estaremos verificando com o LUIS os melhores 'matches' para a solicitação
-        //do pedido dos lanches através da Entidade: Lanche:
         if (entityLanche) {
             var match = builder.EntityRecognizer.findBestMatch(lanches, entityLanche.entity);
         }
 
-        //Caso não encontre o que o usuário está solicitando:
         if (!match) {
             const bestSeller = Object.entries(vendas).reduce((e1, e2) => e1[1] > e2[1] ? e1 : e2);
 
@@ -90,7 +83,6 @@ intents.matches("Pedir", [
 
     (session, results) => {
         pedido.endereco = results.response;
-        //Indica em quanto tempo o pedido do lanche deverá ser entregue (30 minutos):
 
         if (results.response) {
             var time = moment().add(30, "m");
@@ -135,14 +127,12 @@ intents.matches("Desconto", (session) => {
     session.send("Desconto de 10% apenas para aniversariantes com documentação presente");
 });
 
-//Endpoint - Default:
 let teste = intents.onDefault(
     builder.DialogAction.send("Desculpe! Mas, não entendi o que você quis pedir!")
 );
 
 bot.dialog("/", intents);
 
-//Configuração do Servidor via Restify:
 server.post("/api/messages", connector.listen());
 
 server.listen(process.env.port || process.env.PORT || 3978, () => {
